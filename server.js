@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import route from './routes/routes.js';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-
+import flash from 'connect-flash';
 
 // ==========
 // App initialization
@@ -39,6 +39,7 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   next();
 })
+app.use(flash());
 // ==========
 // App routers
 // ==========

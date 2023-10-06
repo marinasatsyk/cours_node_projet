@@ -7,6 +7,7 @@ const SALTROUNDS = 10;
 
 export  function SignUpController(req, res) 
 {
+
     res.render('signup');
 }
 
@@ -48,34 +49,33 @@ export async  function SignUpPostController(req, res)
             throw new Error("email invalide");
         }
 
-       
-        //create new user
-        const hash = await bcrypt.hash(passwordModified, SALTROUNDS);
-        console.log(passwordModified)
-        console.log(hash)
-
-
-        const userData = {
-            firstName: firstNameModified,
-            lastName: lastNameModified,
-            email: emailModified,
-            password: hash
+        const firstNameValidated = firstNameModified !== "" ? true : false;
+        if(!firstName ){
+            throw new Error("firstName is required");
+        }
+        const lastNameValidated = lastNameModified !== "" ? true : false;
+        if(!firstName ){
+            throw new Error("lastName is  required");
         }
 
-        console.log("userData", userData)
-         UserModel.create(userData);
-        // console.log("db inserted");
+        if(!userExist &&  passwordValidated &&  emailValidated && firstNameValidated && lastNameValidated){
+            //create new user
+            const hash = await bcrypt.hash(passwordModified, SALTROUNDS);
+            console.log(passwordModified, hash)
 
-        // create the session
-       
-        req.session.user = {
-            firstName: firstNameModified,
-            lastName: lastNameModified,
-            email: emailModified,
+            const userData = {
+                firstName: firstNameModified,
+                lastName: lastNameModified,
+                email: emailModified,
+                password: hash
+            }
+
+            UserModel.create(userData);
+            console.log("db inserted", userData);
+
+            //redirect to login
+            res.redirect('/signin')
         }
-        //redirect to dashboard
-        res.redirect('/')
-        // res.send(userData)
 
     }catch(err){
         res.status(400).send(`<h1>${err.message}</h1>`);
@@ -90,9 +90,42 @@ export  function SignInController(req, res)
 }
 
 
-export  function SignInPostController(req, res) 
+export async  function SignInPostController(req, res) 
 {
-    res.redirect('/')
+    console.log(req.body);
+
+    const {email, password} = req.body;
+
+    //transform mail, password
+    const emailModified= email.trim().toLowerCase(); 
+    const passwordModified= password.trim().toLowerCase(); 
+    
+    //verify is email valid
+    const emailValidated = validateEmail(req.body.email);  
+    if(!emailValidated){
+        res.status(401).json({err: "Email incorrect"});
+        return
+    }
+
+    //verif if user exists
+    const userExist = await UserModel.findOne({email: email});
+    if(!userExist) {
+        res.status(401).json({err: "User doesn't exist"});
+    }
+
+    //verify is password  is correct
+    const compare = await bcrypt.compare(passwordModified, userExist.password);
+    console.log("compare", compare)
+
+    if(compare) {
+        req.session.user = {
+            firstName: userExist.firstName,
+            lastName: userExist.lastName,
+            email: email,
+        }
+        req. flash('success', 'You are connected.');
+        res.redirect('/')
+    }
 }
 
 
@@ -105,6 +138,7 @@ export function LogoutController(req, res){
             res.status(500).send(err.message);
             return
         }
+        req. flash('success', 'You are now logged out.');
         res.redirect('/signin')
     })
 }
