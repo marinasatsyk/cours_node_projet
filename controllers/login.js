@@ -106,7 +106,6 @@ export  function SignInController(req, res)
 
 export async  function SignInPostController(req, res) 
 {
-    console.log(req.body);
 
     const {email, password} = req.body;
 
@@ -114,32 +113,40 @@ export async  function SignInPostController(req, res)
     const emailModified= email.trim().toLowerCase(); 
     const passwordModified= password.trim().toLowerCase(); 
     
+    try{
     //verify is email valid
-    const emailValidated = validateEmail(emailModified);  
-   
-    if(!emailValidated){
-        res.status(401).json({err: "Email incorrect"});
-        return
-    }
-
-    //verif if user exists
-    const userExist = await UserModel.findOne({email: email});
-    if(!userExist) {
-        res.status(401).json({err: "User doesn't exist"});
-    }
-
-    //verify is password  is correct
-    const compare = await bcrypt.compare(passwordModified, userExist.password);
-    console.log("compare", compare)
-
-    if(compare) {
-        req.session.user = {
-            firstName: userExist.firstName,
-            lastName: userExist.lastName,
-            email: email,
+        const emailValidated = validateEmail(emailModified);  
+    
+        if(!emailValidated){
+            req.flash("error", "Email incorrect");
         }
-        req.flash('success', 'You are connected.');
-        res.redirect('/')
+
+        const userExist = await UserModel.findOne({email: email});
+        if(!userExist) {
+            req.flash("error", "User doesn't exist. Register first");
+            res.redirect('/signin');
+    
+        }else{
+            //verify is password  is correct
+            const compare = await bcrypt.compare(passwordModified, userExist.password);
+            console.log("compare", compare)
+    
+            if(compare) {
+                req.session.user = {
+                    firstName: userExist.firstName,
+                    lastName: userExist.lastName,
+                    email: email,
+                }
+                req.flash('success', 'You are connected.');
+                res.redirect('/')
+            }else{
+                req.flash("error", "Credentials error");
+                res.redirect('/signin');
+            }
+        }
+    }catch(err){
+        res.status(500).send(`<h1>Erreur 500</h1><p>${err.message}</p>`)
+
     }
 }
 
