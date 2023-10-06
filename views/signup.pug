@@ -8,7 +8,7 @@ block head
 block content
   .ui.middle.aligned.center.aligned.grid
     .sixteen.wide.ten.wide.tablet.seven.wide.computer.column
-      h1 DASHBOARD
+      h1 Register
 
       form.ui.large.form(method="post" action="/register")
         .ui.segment
@@ -18,4 +18,4 @@ block content
           +field('password', 'password', 'Password')
           +field('password', 'password_confirm', 'Confirm password')
           button(type="submit").ui.fluid.large.teal.submit.button
-            | Login
+            | Signup

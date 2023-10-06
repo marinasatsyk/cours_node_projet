@@ -1,21 +1,21 @@
 //- Top black menu bar
 .ui.inverted.menu
   .left.menu
-    a.item(href='/dashboard')
+    a.item(href='/')
       i.home.icon
       | Dashboard
 
   .right.menu
-    a.item(href='/register' class='active')
+    a.item(href='/signup' class=(currentPath === '/signup' ?'active' : ''))
       i.sign-in.icon
       | Inscription
-    a.item(href='/login')
+    a.item(href='/signin' class=(currentPath === '/signin' ?'active' : ''))
       i.sign-in.icon
       | Connexion
-
-    span.item
-      i.user.icon
-      | John Doe
-    a.item(href='/logout')
-      i.sign-out.icon
-      | Déconnexion
+    if user !== null
+      span.item
+        i.user.icon
+        | John Doe
+      a.item(href='/logout')
+        i.sign-out.icon
+        | Déconnexion

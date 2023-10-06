@@ -35,7 +35,10 @@ app.use(session({
 }))
 
 app.use(express.urlencoded({extended: false}));
-
+app.use((req, res, next) => {
+  res.locals.currentPath = req.path;
+  next();
+})
 // ==========
 // App routers
 // ==========
