@@ -29,16 +29,37 @@ export async  function SignUpPostController(req, res)
         console.log("userExist", userExist)
        
         if(userExist){
-            throw new Error("User already exists");
+            req.flash("error", "User already exists");
+        }
+        //verify fields are not empty
+        const firstNameValidated = firstNameModified !== "" ? true : false;
+       
+        if(!firstName ){
+            req.flash("error", "firstName is required");
         }
 
-        //verif password == confirm password
+        const lastNameValidated = lastNameModified !== "" ? true : false;
+        if(!firstName ){
+            req.flash("error", "lastName is  required");
+        }
+
+
+        if(passwordModified === ""){
+            req.flash("error", "password is required");
+        }
+
+        if(password_confirmModified === ""){
+            req.flash("error", "password confirm is required");
+        }
+
+        //verif password == confirm password && 
+        
         const passwordValidated = passwordModified === password_confirmModified ? true : false;
         
         console.log("passwordValidated", passwordValidated)
 
         if(!passwordValidated){
-           throw new Error("password and confirmed password are note the same");
+           req.flash("error", "password and confirmed password are note the same");
         }
 
         //check mail
@@ -46,18 +67,10 @@ export async  function SignUpPostController(req, res)
         console.log("emailValidated", emailValidated)
 
         if(!emailValidated){
-            throw new Error("email invalide");
+            req.flash("error", "email invalide");
         }
 
-        const firstNameValidated = firstNameModified !== "" ? true : false;
-        if(!firstName ){
-            throw new Error("firstName is required");
-        }
-        const lastNameValidated = lastNameModified !== "" ? true : false;
-        if(!firstName ){
-            throw new Error("lastName is  required");
-        }
-
+        
         if(!userExist &&  passwordValidated &&  emailValidated && firstNameValidated && lastNameValidated){
             //create new user
             const hash = await bcrypt.hash(passwordModified, SALTROUNDS);
@@ -75,11 +88,12 @@ export async  function SignUpPostController(req, res)
 
             //redirect to login
             res.redirect('/signin')
+        } else {
+            res.redirect("/signup");
         }
 
     }catch(err){
-        res.status(400).send(`<h1>${err.message}</h1>`);
-        return
+       res.status(500).send(`<h1>Erreur 500</h1><p>${err.message}</p>`)
     }
 }
 
@@ -101,7 +115,8 @@ export async  function SignInPostController(req, res)
     const passwordModified= password.trim().toLowerCase(); 
     
     //verify is email valid
-    const emailValidated = validateEmail(req.body.email);  
+    const emailValidated = validateEmail(emailModified);  
+   
     if(!emailValidated){
         res.status(401).json({err: "Email incorrect"});
         return
@@ -123,7 +138,7 @@ export async  function SignInPostController(req, res)
             lastName: userExist.lastName,
             email: email,
         }
-        req. flash('success', 'You are connected.');
+        req.flash('success', 'You are connected.');
         res.redirect('/')
     }
 }
@@ -138,7 +153,6 @@ export function LogoutController(req, res){
             res.status(500).send(err.message);
             return
         }
-        req. flash('success', 'You are now logged out.');
         res.redirect('/signin')
     })
 }

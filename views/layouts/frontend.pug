@@ -14,12 +14,18 @@ html(lang='en')
   body
 
     include ../includes/menu
-    - if (flash)
-        //- +message('success') Success message example
 
-    //-   +message('success') Success message example
-    //-   +message('error') Error message example
-    //-   +message('info') Info message example
-    //-   +message('warning') Warning message example
+    if flash_success.length > 0
+      +message('success')
+        each message in flash_success
+          p= message
+    
+    else if flash_error.length > 0
+      +message('error')
+        each message in flash_error
+          p= message
+        //- +message('error') Error message example
+        //- +message('info') Info message example
+        //- +message('warning') Warning message example
 
     block content

@@ -26,6 +26,7 @@ app.locals.pretty = NODE_ENV !== 'production'; // Indente correctement le HTML e
 // ==========
 
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(session({
   name: "NODE_USER_session",
   secret: NODE_SESSION_SECRET,
@@ -33,13 +34,18 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({mongoUrl: `${MONGO_STRING}${MONGO_DB_NAME}`})
 }))
+app.use(flash());
 
 app.use(express.urlencoded({extended: false}));
 app.use((req, res, next) => {
+
   res.locals.currentPath = req.path;
+  res.locals.flash_success = req?.flash("success"); // Consomme les messages flash
+  res.locals.flash_error = req?.flash("error"); // Consomme les messages flash
+
+  console.log('In middleware',res.locals.flash_success, res.locals.flash_error )
   next();
 })
-app.use(flash());
 // ==========
 // App routers
 // ==========

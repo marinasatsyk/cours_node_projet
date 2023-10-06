@@ -16,7 +16,8 @@
     if user !== null
       span.item
         i.user.icon
-        | John Doe
+      div.item  #{user.firstName} #{user.lastName}
+      
       a.item(href='/logout')
         i.sign-out.icon
         | Déconnexion
