@@ -6,12 +6,13 @@
       | Dashboard
 
   .right.menu
-    a.item(href='/signup' class=(currentPath === '/signup' ?'active' : ''))
-      i.sign-in.icon
-      | Inscription
-    a.item(href='/signin' class=(currentPath === '/signin' ?'active' : ''))
-      i.sign-in.icon
-      | Connexion
+    if user == null
+      a.item(href='/signup' class=(currentPath === '/signup' ?'active' : ''))
+        i.sign-in.icon
+        | Inscription
+      a.item(href='/signin' class=(currentPath === '/signin' ?'active' : ''))
+        i.sign-in.icon
+        | Connexion
     if user !== null
       span.item
         i.user.icon
